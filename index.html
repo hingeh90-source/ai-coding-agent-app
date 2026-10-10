@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coding Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e3f2fd 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+            color: #5f6368;
+            margin-left: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .settings-icon, .help-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+        }
+
+        /* Main Content */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .welcome-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .gemini-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 25%, #6bcf7f 50%, #4d96ff 75%, #c084fc 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .welcome-text {
+            font-size: 32px;
+            font-weight: 300;
+            color: #202124;
+            margin-bottom: 40px;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .suggestion-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .suggestion-card:hover {
+            background: #f8f9fa;
+            border-color: #d0d0d0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            color: #202124;
+            font-weight: 500;
+        }
+
+        .chat-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #d2e3fc;
+            color: #202124;
+        }
+
+        .message.assistant .message-content {
+            background: #f1f3f4;
+            color: #202124;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #e0e0e0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .plus-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f6368;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f1f3f4;
+            border-radius: 24px;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 16px;
+            color: #202124;
+        }
+
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: #3367d6;
+        }
+
+        .send-button:active {
+            background: #2951b5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .welcome-text {
+                font-size: 24px;
+            }
+
+            .suggestions {
+                grid-template-columns: 1fr;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+
+        /* Chat Hidden by Default */
+        .chat-section {
+            display: none;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .welcome-section.hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #5f6368;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: loading 1.4s infinite;
+        }
+
+        .loading:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loading {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <span class="menu-icon">☰</span>
+            <span class="header-title">AI Agent <span class="dropdown-arrow">▼</span></span>
+        </div>
+        <div class="header-right">
+            <span class="settings-icon">⚙️</span>
+            <span class="help-icon">💡</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section" id="welcomeSection">
+            <div class="gemini-logo">✨</div>
+            <div class="welcome-text">Your move, Sujon!</div>
+            
+            <div class="suggestions">
+                <div class="suggestion-card" onclick="handleSuggestion('Design a phone wallpaper for me')">
+                    <div class="suggestion-icon">🎨</div>
+                    <div class="suggestion-text">Design a phone wallpaper for me</div>
+                </div>
+                <div class="suggestion-card" onclick="handleSuggestion('Set up a Python coding environment')">
+                    <div class="suggestion-icon">🐍</div>
+                    <div class="suggestion-text">Set up a Python coding environment</div>
+                </div>
+                <div class="suggestion-card" onclick="handleSuggestion('Paint a room like a pro')">
+                    <div class="suggestion-icon">🏠</div>
+                    <div class="suggestion-text">Paint a room like a pro</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-section" id="chatSection"></div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+        <div class="input-container">
+            <span class="plus-icon">➕</span>
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="Try @ for me..." 
+                    onkeypress="handleKeyPress(event)"
+                >
+            </div>
+            <button class="send-button" onclick="sendMessage()">▶️</button>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const chatSection = document.getElementById('chatSection');
+        const welcomeSection = document.getElementById('welcomeSection');
+
+        function showChat() {
+            welcomeSection.classList.add('hidden');
+            chatSection.classList.add('active');
+        }
+
+        function hideChat() {
+            welcomeSection.classList.remove('hidden');
+            chatSection.classList.remove('active');
+        }
+
+        function handleSuggestion(text) {
+            userInput.value = text;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            showChat();
+
+            // Add user message
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user';
+            userMessageDiv.innerHTML = `<div class="message-content">${escapeHtml(message)}</div>`;
+            chatSection.appendChild(userMessageDiv);
+
+            // Clear input
+            userInput.value = '';
+
+            // Simulate AI response with loading
+            setTimeout(() => {
+                const assistantMessageDiv = document.createElement('div');
+                assistantMessageDiv.className = 'message assistant';
+                assistantMessageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="loading"></div>
+                        <div class="loading"></div>
+                        <div class="loading"></div>
+                    </div>
+                `;
+                chatSection.appendChild(assistantMessageDiv);
+                chatSection.scrollTop = chatSection.scrollHeight;
+
+                // Generate response
+                setTimeout(() => {
+                    const response = generateAIResponse(message);
+                    assistantMessageDiv.innerHTML = `<div class="message-content">${response}</div>`;
+                    chatSection.scrollTop = chatSection.scrollHeight;
+                }, 1500);
+            }, 300);
+        }
+
+        function generateAIResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+
+            // Simple AI responses based on keywords
+            if (lowerMessage.includes('python') || lowerMessage.includes('environment')) {
+                return `
+                    Here's how to set up a Python coding environment:
+                    <div class="code-block">
+# 1. Install Python
+python --version
+
+# 2. Create a virtual environment
+python -m venv myenv
+
+# 3. Activate it
+# On Windows:
+myenv\\Scripts\\activate
+# On Mac/Linux:
+source myenv/bin/activate
+
+# 4. Install packages
+pip install numpy pandas requests</div>
+                    Would you like me to help with anything specific?
+                `;
+            } else if (lowerMessage.includes('wallpaper') || lowerMessage.includes('design')) {
+                return `
+                    I can help you design a phone wallpaper! Here are some ideas:
+                    <br><br>
+                    <strong>Option 1: Minimalist Gradient</strong>
+                    - Use a smooth gradient from deep blue to purple
+                    - Add a subtle geometric shape in the center
+                    <br><br>
+                    <strong>Option 2: Nature Theme</strong>
+                    - Mountain landscape with sunset colors
+                    - Stars in the night sky
+                    <br><br>
+                    Would you like me to describe the design in more detail or suggest colors?
+                `;
+            } else if (lowerMessage.includes('paint') || lowerMessage.includes('room')) {
+                return `
+                    Here's a step-by-step guide to paint a room professionally:
+                    <br><br>
+                    <strong>1. Preparation</strong>
+                    - Clear the room and protect furniture
+                    - Cover floors with drop cloths
+                    - Remove outlet covers
+                    <br><br>
+                    <strong>2. Priming</strong>
+                    - Apply primer to bare walls
+                    - Use painter's tape along edges
+                    <br><br>
+                    <strong>3. Painting</strong>
+                    - Apply 2 coats of paint
+                    - Paint edges first, then use roller for large areas
+                    <br><br>
+                    Need specific color recommendations?
+                `;
+            } else if (lowerMessage.includes('code') || lowerMessage.includes('write')) {
+                return `
+                    I can help you write code! Here's a simple example:
+                    <div class="code-block">
+def greet(name):
+    return f"Hello, {name}!"
+
+# Usage
+print(greet("Developer"))</div>
+                    What programming language or task do you need help with?
+                `;
+            } else {
+                return `
+                    I'm an AI coding agent that can help you with:
+                    • Writing and debugging code
+                    • Explaining programming concepts
+                    • Creating designs and layouts
+                    • Providing step-by-step guides
+                    <br><br>
+                    How can I assist you today? Feel free to ask me to code, design, or explain anything!
+                `;
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Focus input on load
+        userInput.focus();
+    </script>
+</body>
+</html>
